@@ -51,39 +51,50 @@ if(document.getElementById("qr-reader")){
     window.location.href="index.html";
   }
   const mssv = sessionStorage.getItem("mssv");
-  document.getElementById("info").innerHTML = "MSSV: "+mssv;
+  document.getElementById("info").innerHTML = "MSSV: " + mssv;
+
   let scanner;
-  function onScanSuccess(qr){
-    document.getElementById("result").innerHTML = "Mã: " + qr;
-    // Dừng quét ngay sau khi nhận QR
-    //scanner.clear();
-    // Hiển thị nút quét lại
-    document.getElementById("retry-btn").style.display = "inline-block";
 
-    handleQR(qr);
-  }
-  scanner = new Html5QrcodeScanner("qr-reader", { fps:10, qrbox:475, aspectRatio:1.0 });
-  scanner.render(onScanSuccess);
+  // Tạo nút "Hành động mới"
+  const actionBtn = document.createElement("button");
+  actionBtn.id = "action-btn";
+  actionBtn.innerText = "Hành động mới";
+  actionBtn.style.display = "none";
+  document.getElementById("result").after(actionBtn);
 
-  // Nút quét lại
-  const retryBtn = document.createElement("button");
-  retryBtn.id = "retry-btn";
-  retryBtn.innerText = "Quét lại";
-  retryBtn.style.display = "none";
-  document.body.appendChild(retryBtn);
-  document.getElementById("qr-reader").appendChild(retryBtn);
-  retryBtn.addEventListener("click", () => {
+  actionBtn.addEventListener("click", () => {
     document.getElementById("result").innerHTML = "";
-    retryBtn.style.display = "none";
-    scanner.render(onScanSuccess); // khởi động lại scanner
+    actionBtn.style.display = "none";
+    scanner.render(onScanSuccess); // quay về giao diện chọn camera/ảnh
   });
+
+  // Hàm xử lý khi quét thành công
+  function onScanSuccess(qr) {
+    document.getElementById("result").innerHTML = "✅ Đã quét: " + qr;
+    handleQR(qr);
+    scanner.clear(); // dừng scanner
+    actionBtn.style.display = "block"; // hiện nút hành động mới
+  }
+
+  // Khởi tạo scanner ban đầu
+  scanner = new Html5QrcodeScanner("qr-reader", {
+    fps: 10,
+    qrbox: 475,
+    aspectRatio: 1.0
+  });
+  scanner.render(onScanSuccess);
 
   //new Html5QrcodeScanner("qr-reader",{fps:10,qrbox:400, aspectRatio: 1.0}).render(onScanSuccess);
 
   async function handleQR(deviceID){
     const deviceRef = ref(db,"devices/"+deviceID);
     const snap = await get(deviceRef);
-    if(!snap.exists()){ document.getElementById("result").innerHTML="Thiết bị không tồn tại!"; return; }
+  if(!snap.exists()){ 
+      const msg = "Thiết bị không tồn tại!";
+      document.getElementById("result").innerHTML = msg;
+      sendToLCD("No Device Found");
+      return; 
+    }
     const device = snap.val();
     const now = new Date();
     const timestamp = now.toISOString().replace(/[:-]/g,'').split('.')[0]+"Z";
@@ -101,21 +112,27 @@ if(document.getElementById("qr-reader")){
     if(foundLog){
       await update(deviceRef,{available_quantity:device.available_quantity+1,borrowed_quantity:device.borrowed_quantity-1});
       await update(ref(db,"logs/"+foundLog),{status:"returned",return_time:now.toLocaleString()});
-      document.getElementById("result").innerHTML="✔ Trả thành công "+deviceID;
-      alert("✔ Trả thành công " + deviceID);
+      const msg = "✔ Trả thành công " + deviceID;
+      document.getElementById("result").innerHTML = msg;
+      alert(msg);
+      sendToLCD(mssv + " Returned " + deviceID);
       return;
     }
 
     if(device.available_quantity>0){
       await update(deviceRef,{available_quantity:device.available_quantity-1,borrowed_quantity:device.borrowed_quantity+1});
       await set(ref(db,"logs/"+logKey),{student_id:mssv,device_id:deviceID,status:"borrowed",borrow_time:now.toLocaleString(),return_time:null});
-      document.getElementById("result").innerHTML="✔ Mượn thành công "+deviceID;
-      alert("✔ Mượn thành công " + deviceID);
+      const msg = "✔ Mượn thành công " + deviceID;
+      document.getElementById("result").innerHTML = msg;
+      alert(msg);
+      sendToLCD(mssv + " Borrow " + deviceID);
       return;
-    }
-    document.getElementById("result").innerHTML="Thiết bị đã được mượn!";
-    alert("Thiết bị đã được mượn!");
-    
+   }
+
+    const msg = "Thiết bị đã được mượn!";
+    document.getElementById("result").innerHTML = msg;
+    alert(msg);
+    sendToLCD("Already borrow");
   }
   
 function renderBorrowingList() {
@@ -157,8 +174,17 @@ function renderBorrowingList() {
     });
 }
 
-// Gọi hàm
-renderBorrowingList();
+  // Gọi hàm thống kê log 
+  renderBorrowingList();
+
+  // Gửi data đến ESP in ra LCD
+  function sendToLCD(message) {
+    const espIP = "http://192.168.102.28"; // Đổi thành IP thật của ESP8266
+    fetch(espIP + "/lcd?msg=" + encodeURIComponent(message))
+      .then(res => console.log("LCD updated:", res.status))
+      .catch(err => console.error("LCD error:", err));
+  }
+
 }
 
 // ================== ADMIN PAGE ==================
@@ -185,38 +211,94 @@ if(document.getElementById("deviceTable")){
       tbody.appendChild(tr);
     });
   });
+
 // render logs
 const logsRef = ref(db, "logs");
 onValue(logsRef, (snap) => {
   const tbody = document.querySelector("#logsTable tbody");
+  const pagination = document.getElementById("pagination");
   tbody.innerHTML = "";
-  const logEntries = [];
+  pagination.innerHTML = "";
 
+  const logEntries = [];
   snap.forEach(item => {
     const log = item.val();
     logEntries.push({ key: item.key, ...log });
   });
 
-  // Sắp xếp theo ngày borrow_time (hoặc return_time nếu có)
+  // Sắp xếp mới nhất trước
   logEntries.sort((a, b) => {
-    // Chuyển chuỗi thành Date
     const dateA = new Date(a.return_time || a.borrow_time);
     const dateB = new Date(b.return_time || b.borrow_time);
     return dateB - dateA;
   });
 
-  logEntries.forEach(log => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${log.key}</td>
-      <td>${log.student_id}</td>
-      <td>${log.device_id}</td>
-      <td>${log.status}</td>
-      <td>${log.borrow_time}</td>
-      <td>${log.return_time || "-"}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const pageSize = 20;
+  let currentPage = 1;
+  const totalPages = Math.ceil(logEntries.length / pageSize);
+
+  function renderPage(page) {
+    tbody.innerHTML = "";
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pageData = logEntries.slice(start, end);
+
+    pageData.forEach(log => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${log.key}</td>
+        <td>${log.student_id}</td>
+        <td>${log.device_id}</td>
+        <td>${log.status}</td>
+        <td>${log.borrow_time}</td>
+        <td>${log.return_time || "-"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderPagination() {
+    pagination.innerHTML = "";
+
+    // Nút "<"
+    const prevBtn = document.createElement("button");
+    prevBtn.innerText = "<";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener("click", () => {
+      currentPage--;
+      renderPage(currentPage);
+      renderPagination();
+    });
+    pagination.appendChild(prevBtn);
+
+    // Các số trang
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
+      btn.innerText = i;
+      btn.disabled = (i === currentPage);
+      btn.addEventListener("click", () => {
+        currentPage = i;
+        renderPage(currentPage);
+        renderPagination();
+      });
+      pagination.appendChild(btn);
+    }
+
+    // Nút ">"
+    const nextBtn = document.createElement("button");
+    nextBtn.innerText = ">";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener("click", () => {
+      currentPage++;
+      renderPage(currentPage);
+      renderPagination();
+    });
+    pagination.appendChild(nextBtn);
+  }
+
+  // Khởi tạo
+  renderPage(currentPage);
+  renderPagination();
 });
 
 
