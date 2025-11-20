@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Student Page</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="styles.css"> </head>
+<body>
+    <div class="container">
+        <h2>Student Page</h2>
+        <div id="info"></div>
+        <button onclick="logout()">Đăng xuất</button>
+        <h3>Thiết bị đang mượn</h3>
+        <table id="borrowTable">
+            <thead>
+                <tr>
+                    <th>Device ID</th>
+                    <th>Borrow Time</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <h3 class="section-title">Quét QR Mượn/Trả Thiết Bị</h3>
+        <div class="qr-container">
+            <div id="qr-reader"></div>
+            <div id="result" class="qr-result"></div>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

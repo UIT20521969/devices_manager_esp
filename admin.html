@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css"> <style>
+        /* GIỮ LẠI PHẦN STYLE NÀY CHO BẢNG MÀ KHÔNG CẦN THIẾT, VÌ CHÚNG TA ĐÃ CHUYỂN QUA styles.css */
+        /* Vui lòng xóa nội dung trong thẻ <style> này để không bị trùng lặp CSS */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+        <button onclick="logout()">Đăng xuất</button>
+
+        <section class="management-section">
+            <h3>Quản lý thiết bị</h3>
+            <div class="table-wrapper">
+                <table id="deviceTable">
+                    <thead>
+                        <tr>
+                            <th>Device ID</th>
+                            <th>Name</th>
+                            <th>Total Quantity</th>
+                            <th>Available Quantity</th>
+                            <th>Borrowed Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="form-container">
+                <h4>Thêm thiết bị</h4>
+                <div class="input-group">
+                    <input id="addDeviceID" placeholder="Device ID">
+                    <input id="addDeviceName" placeholder="Tên thiết bị">
+                    <input id="addDeviceTotal" placeholder="Số lượng" type="number" min="1">
+                    <button id="addBtn">Thêm</button>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <h4>Xóa thiết bị</h4>
+                <div class="input-group">
+                    <input id="deleteDeviceID" placeholder="Device ID">
+                    <button id="deleteBtn" class="delete-btn">Xóa</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="management-section">
+            <h3>Lịch sử mượn/trả</h3>
+            <div class="table-wrapper">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Key ID</th>
+                            <th>Student ID</th>
+                            <th>Device ID</th>
+                            <th>Status</th>
+                            <th>Borrow Time</th>
+                            <th>Return Time</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

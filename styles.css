@@ -1,0 +1,317 @@
+/* Thiết lập cơ bản và font */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #FAFAFA; /* Nền trắng nhạt */
+    color: #333; /* Màu chữ chính */
+    padding: 20px;
+    line-height: 1.6;
+}
+
+h2, h3, h4 {
+    color: #1E90FF; /* Màu xanh dương đậm cho tiêu đề */
+    border-bottom: 2px solid #87CEEB; /* Đường kẻ dưới màu xanh nhạt */
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* ---------------------------------------------------------------- */
+/* Các thành phần Form/Input/Button */
+
+input[type="text"], input[type="password"], input[type="number"], input {
+    padding: 10px;
+    margin: 5px 10px 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Đảm bảo padding không làm tăng chiều rộng */
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #1E90FF; /* Đổi màu viền khi focus */
+    outline: none;
+}
+
+button {
+    background-color: #87CEEB; /* Nút màu xanh dương nhạt */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #1E90FF; /* Hover đổi sang xanh dương đậm */
+}
+
+button:active {
+    transform: scale(0.98); /* Hiệu ứng nhấn */
+}
+
+/* Nút Đăng xuất */
+button[onclick="logout()"] {
+    float: right;
+    background-color: #FF6347; /* Màu đỏ nhẹ để nổi bật */
+    margin-bottom: 20px;
+}
+
+button[onclick="logout()"]:hover {
+    background-color: #CC0000;
+}
+
+
+/* ---------------------------------------------------------------- */
+/* Bố cục chính (Chủ yếu cho index.html) */
+
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #87CEEB, rgba(0, 0, 0, 0));
+    margin: 30px 0;
+}
+
+div {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------------------------------------------------------------- */
+/* Bảng (Tables - admin.html) */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tạo độ sâu cho bảng */
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden; /* Cần thiết để border-radius hoạt động với border-collapse */
+}
+
+th, td {
+    border: 1px solid #DCDCDC; /* Viền nhạt hơn */
+    padding: 12px 15px;
+    text-align: center;
+}
+
+thead th {
+    background-color: #87CEEB; /* Màu nền header xanh nhạt */
+    color: white; /* Chữ trắng */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #F8F8FF; /* Màu xen kẽ cho dòng chẵn */
+}
+
+tbody tr:hover {
+    background-color: #E0FFFF; /* Hiệu ứng hover màu xanh rất nhạt */
+    cursor: default;
+}
+
+@media (max-width: 600px) {
+  .container table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    min-width: 100px; /* Đảm bảo mỗi cột đủ rộng để đọc */
+  }
+}
+
+
+/* ---------------------------------------------------------------- */
+/* Phần QR Code (student.html) */
+
+#result {
+    font-weight: bold;
+    text-align: center;
+    color: #1E90FF;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #eee;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+#info {
+    padding: 15px;
+    background-color: #E0FFFF; /* Màu nền thông tin sinh viên */
+    border: 1px solid #87CEEB;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+#retry-btn {
+  display: block;
+  margin: 10px auto;   /* căn giữa ngang */
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+/* ---------------------------------------------------------------- */
+/* CSS cho Responsive Layout (index.html) */
+
+.container {
+    max-width: 500px; /* Giới hạn chiều rộng tối đa */
+    margin: 40px auto; /* Căn giữa theo chiều ngang */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Áp dụng cho các input trong container để chúng chiếm hết chiều rộng */
+.container input {
+    width: calc(100% - 20px); /* 100% trừ padding/margin đã có */
+    margin: 10px 0; /* Căn chỉnh margin trên/dưới */
+    display: block; /* Đảm bảo mỗi input chiếm một dòng riêng */
+}
+
+/* Áp dụng cho các button trong container */
+.container button {
+    width: 100%; /* Nút chiếm hết chiều rộng trên màn hình nhỏ */
+    margin-top: 15px;
+    padding: 12px;
+}
+
+/* Loại bỏ margin-right cho button đã được set ở phần trước */
+.container button:last-of-type {
+    margin-right: 0;
+}
+
+
+/* MEDIA QUERIES cho màn hình rất nhỏ (dưới 480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        margin: 10px auto;
+        padding: 15px;
+        box-shadow: none; /* Giảm bóng đổ trên màn hình rất nhỏ */
+    }
+
+    /* Đảm bảo nút không bị quá to */
+    .container button {
+        font-size: 1em;
+    }
+}
+
+.project-title {
+  text-align: center;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+}
+
+.project-title h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  color: #1E90FF;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ---------------------------------------------------------------- */
+/* CSS cho Student Page (Áp dụng Responsive) */
+
+/* Định nghĩa lại container cho toàn bộ trang (Đã có, nhưng đặt lại để tham khảo) */
+.container {
+    max-width: 600px; /* Hơi rộng hơn index để phù hợp với màn hình QR */
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative; /* Dùng cho nút đăng xuất tuyệt đối nếu cần */
+}
+
+/* Căn chỉnh nút đăng xuất */
+button[onclick="logout()"] {
+    position: absolute; /* Đặt tuyệt đối để không ảnh hưởng đến bố cục */
+    top: 20px;
+    right: 20px;
+    float: none; /* Loại bỏ float cũ */
+    width: auto; /* Trả về width tự nhiên */
+    padding: 8px 15px;
+    margin-bottom: 0;
+}
+
+/* Khu vực hiển thị thông tin */
+#info {
+    padding: 15px;
+    background-color: #E0FFFF; 
+    border: 1px solid #87CEEB;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Khu vực chứa QR reader */
+#qr-reader {
+    /* Đã sửa trong HTML thành width: 100% */
+    margin: 10px auto;
+    border: 3px dashed #1E90FF; /* Viền nét đứt màu xanh đậm hơn */
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 100%; /* Đảm bảo không vượt quá container */
+    overflow: hidden; /* Cần thiết cho camera */
+}
+
+#qr-shaded-region {
+  margin: 0;
+  padding: 0;
+  border-style: solid;
+  border-color: rgba(0,0,0,0.48);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Khu vực hiển thị kết quả */
+#result {
+    font-weight: bold;
+    text-align: center;
+    color: #1E90FF;
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #87CEEB;
+    background-color: #F0F8FF; /* Nền xanh rất nhạt */
+    border-radius: 8px;
+}
+
+/* MEDIA QUERIES cho màn hình nhỏ */
+@media (max-width: 600px) {
+    .container {
+        margin: 10px auto;
+        padding: 15px;
+        box-shadow: none;
+    }
+
+    button[onclick="logout()"] {
+        position: static; /* Đưa nút về vị trí bình thường */
+        margin-top: 10px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    /* Đẩy tiêu đề xuống dưới nút đăng xuất nếu nó bị đẩy về static */
+    h2 {
+        margin-top: 20px;
+        padding-top: 0;
+    }
+}
+
