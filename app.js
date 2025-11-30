@@ -70,21 +70,10 @@ if(document.getElementById("qr-reader")){
 
   // Hàm xử lý khi quét thành công
   function onScanSuccess(qr) {
-  document.getElementById("result").innerHTML = "✅ Đã quét: " + qr;
-
-  handleQR(qr)
-    .then(() => {
-      actionBtn.style.display = "block";
-      scanner.clear();
-    })
-    .catch((err) => {
-      const msg = "❌ Lỗi xử lý QR: " + err.message;
-      document.getElementById("result").innerHTML = msg;
-      alert(msg);
-      sendToLCD("QR Error");
-      actionBtn.style.display = "block";
-      scanner.clear();
-    });
+    document.getElementById("result").innerHTML = "✅ Đã quét: " + qr;
+    handleQR(qr);
+    scanner.clear(); // dừng scanner
+    actionBtn.style.display = "block"; // hiện nút hành động mới
   }
 
   // Khởi tạo scanner ban đầu
@@ -101,7 +90,7 @@ if(document.getElementById("qr-reader")){
     const deviceRef = ref(db,"devices/"+deviceID);
     const snap = await get(deviceRef);
   if(!snap.exists()){ 
-      const msg = "Thiết bị không tồn tại hoặc mã không đúng!";
+      const msg = "Thiết bị không tồn tại!";
       document.getElementById("result").innerHTML = msg;
       sendToLCD("No Device Found");
       return; 
@@ -132,8 +121,7 @@ if(document.getElementById("qr-reader")){
 
     if(device.available_quantity>0){
       await update(deviceRef,{available_quantity:device.available_quantity-1,borrowed_quantity:device.borrowed_quantity+1});
-      await set(ref(db,"logs/"+logKey),{student_id:mssv,device_id:deviceID,status:"borrowed",borrow_time:now.toLocaleString({timeZone: 'Asia/Ho_Chi_Minh'})
-        ,return_time:null});
+      await set(ref(db,"logs/"+logKey),{student_id:mssv,device_id:deviceID,status:"borrowed",borrow_time:now.toLocaleString(),return_time:null});
       const msg = "✔ Mượn thành công " + deviceID;
       document.getElementById("result").innerHTML = msg;
       alert(msg);
@@ -191,7 +179,7 @@ function renderBorrowingList() {
 
   // Gửi data đến ESP in ra LCD
   function sendToLCD(message) {
-    const espIP = "http://192.168.137.93"; // Đổi thành IP thật của ESP8266 192.168.137.172
+    const espIP = "http://192.168.137.93"; // Đổi thành IP thật của ESP8266
     fetch(espIP + "/lcd?msg=" + encodeURIComponent(message))
       .then(res => console.log("LCD updated:", res.status))
       .catch(err => console.error("LCD error:", err));
